@@ -10,22 +10,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-  // dateRegistered DateTime @default(now())
-
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  fullname String?
-  photo    String
-  hobbys   Hobby[]
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  fullname    String?
+  photo       String
+  hobbys      UserHobby[]
+}
+
+model UserHobby {
+  id      Int   @id @default(autoincrement())
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId  Int
+  hobby   Hobby @relation(fields: [hobbyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  hobbyId Int
 }
 
 model Hobby {
-  id       Int       @id @default(autoincrement())
-  name     String
-  description  String
-  active   Boolean
-  image    String
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String
+  active      Boolean
+  image       String
+  users       UserHobby[]
 }

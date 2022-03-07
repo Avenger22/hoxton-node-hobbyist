@@ -22,32 +22,60 @@ const users = [
   }
 ]
 
+const userHobbys = [
+  {
+    userId: 1,
+    hobbyId: 2
+  },
+  {
+    userId: 1,
+    hobbyId: 3
+  },
+  {
+    userId: 3,
+    hobbyId: 1
+  },
+  {
+    userId: 3,
+    hobbyId: 2
+  },
+  {
+    userId: 2,
+    hobbyId: 2
+  },
+  {
+    userId: 2,
+    hobbyId: 3
+  }
+]
+
 const hobbys = [
   {
+    id: 1,
     name: 'Hobby A',
     description: 'description a',
     active: true,
-    image: "no.jpg",
-    userId: 1
+    image: "no.jpg"
   },
   {
+    id: 2,
     name: 'Hobby B',
     description: 'description b',
     active: false,
-    image: "no2.jpg",
-    userId: 1
+    image: "no2.jpg"
   },
   {
+    id: 3,
     name: 'Hobby C',
     description: 'description c',
     active: true,
-    image: "noe.jpg",
-    userId: 2
+    image: "noe.jpg"
   }
 ]
 
 async function createStuff () {
 
+  await prisma.userHobby.deleteMany()
   await prisma.user.deleteMany()
   await prisma.hobby.deleteMany()
 
@@ -57,6 +85,10 @@ async function createStuff () {
 
   for (const hobby of hobbys) {
     await prisma.hobby.create({ data: hobby })
+  }
+
+  for (const userHobby of userHobbys) {
+    await prisma.userHobby.create({ data: userHobby })
   }
 
 }

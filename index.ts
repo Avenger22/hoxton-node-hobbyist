@@ -18,7 +18,7 @@ app.use(express.json())
 app.get('/users', async (req, res) => {
 
   const users = await prisma.user.findMany({
-    include: { hobbys: true }
+    include: { hobbys: { include : { hobby: true } } }
   })
 
   res.send(users)
@@ -31,7 +31,7 @@ app.get('/users/:id', async (req, res) => {
 
   const user = await prisma.user.findFirst({
     where: { id: idParam },
-    include: { hobbys: true }
+    include: { hobbys: { include : { hobby: true } } }
   })
 
   if (user) {
@@ -125,7 +125,7 @@ app.patch('/users/:id', async (req, res) => {
 app.get('/hobbys', async (req, res) => {
 
   const hobbys = await prisma.hobby.findMany({
-    include: { user: true }
+    include: { users: { include : { user: true } } }
   })
 
   res.send(hobbys)
@@ -138,7 +138,7 @@ app.get('/hobbys/:id', async (req, res) => {
 
   const hobby = await prisma.hobby.findFirst({
     where: { id: idParam },
-    include: { user: true }
+    include: { users: { include : { user: true } } }
   })
 
   if (hobby) {
