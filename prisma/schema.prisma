@@ -15,6 +15,7 @@ model User {
   email    String    @unique
   fullname String?
   photo    String
+  // dateRegistered DateTime @default(now())
   hobbys   Hobby[]
 }
 

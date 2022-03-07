@@ -3,16 +3,19 @@ const prisma = new PrismaClient()
 
 const users = [
   {
+    id: 1,
     email: 'jurgen@email.com',
     fullname: 'Jurgen Hasmeta',
     photo: "jeoej.png"
   },
   {
+    id: 2,
     email: 'person1@email.com',
     fullname: 'Person 1',
     photo: "jeoej1.png"
   },
   {
+    id: 3,
     email: 'person2@email.com',
     fullname: 'Person2',
     photo: "jeoej2.png"
@@ -45,13 +48,14 @@ const hobbys = [
 
 async function createStuff () {
 
+  await prisma.user.deleteMany()
+  await prisma.hobby.deleteMany()
+
   for (const user of users) {
-    // @ts-ignore
     await prisma.user.create({ data: user })
   }
 
   for (const hobby of hobbys) {
-    // @ts-ignore
     await prisma.hobby.create({ data: hobby })
   }
 

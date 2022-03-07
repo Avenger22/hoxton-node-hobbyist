@@ -42,7 +42,7 @@ app.get('/users/:id', async (req, res) => {
 
 app.get('/hobbys', async (req, res) => {
 
-  const hobbys = await prisma.post.findMany({
+  const hobbys = await prisma.hobby.findMany({
     include: { user: true }
   })
 
@@ -54,7 +54,7 @@ app.get('/hobbys/:id', async (req, res) => {
 
   const idParam = Number(req.params.id)
 
-  const hobby = await prisma.user.findFirst({
+  const hobby = await prisma.hobby.findFirst({
     where: { id: idParam },
     include: { user: true }
   })
