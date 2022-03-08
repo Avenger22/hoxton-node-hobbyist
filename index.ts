@@ -58,7 +58,7 @@ app.post('/users', async (req, res) => {
 
 })
 
-app.delete('users/:id', async (req, res) => {
+app.delete('/users/:id', async (req, res) => {
 
   const idParam = req.params.id
 
@@ -74,12 +74,12 @@ app.delete('users/:id', async (req, res) => {
       where: { id: Number(idParam) }
     })
 
-    res.send({"success": "User deleted"})
+    res.send({ message: 'user deleted.' })
 
   }
 
   else {
-    res.send({"error": "undefined"})
+    res.status(404).send({ error: 'user not found.' })
   }
 
 })
@@ -89,33 +89,118 @@ app.patch('/users/:id', async (req, res) => {
   const idParam = req.params.id;
   const { email, fullname, photo } = req.body
 
-  const user = await prisma.user.findFirst({
-    where: {
-      id: Number(idParam)
-    }
-  })
-  
-  const updatedUser = {
+  const userData = {
     email: email,
     fullname: fullname,
     photo: photo
   }
 
-  if (user) {
+  try {
 
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: {
         id: Number(idParam),
       },
-      data: updatedUser
+      data: userData
     })
 
     res.send(user)
 
+  } catch(error) {
+    res.status(404).send({message: error})
+  }
+
+})
+// #endregion
+
+// #region 'userHobbys endpoints'
+app.get('/userHobbys', async (req, res) => {
+
+  const userHobbys = await prisma.userHobby.findMany()
+  res.send(userHobbys)
+
+})
+
+app.get('/userHobbys/:id', async (req, res) => {
+
+  const idParam = Number(req.params.id)
+
+  const userHobby = await prisma.userHobby.findFirst({
+    where: { id: idParam }
+  })
+
+  if (userHobby) {
+    res.send(userHobby)
+  } 
+  
+  else {
+    res.status(404).send({ error: 'userHobby not found.' })
+  }
+
+})
+
+app.post('/userHobbys', async (req, res) => {
+    
+  const { userId, hobbyId } = req.body
+  
+  const newUserHobby = {
+    userId: userId,
+    hobbyId: hobbyId
+  }
+
+  await prisma.userHobby.create({data: newUserHobby})
+
+})
+
+app.delete('/userHobbys/:id', async (req, res) => {
+
+  const idParam = req.params.id
+
+  const userHobby = await prisma.userHobby.findFirst({
+    where: {
+      id: Number(idParam)
+    }
+  })
+
+  if (userHobby) {
+
+    await prisma.userHobby.delete({ 
+      where: { id: Number(idParam) }
+    })
+
+    res.send({ message: 'userHobby deleted.' })
+
   }
 
   else {
-    res.send({"error": "undefined"})
+    res.status(404).send({ error: 'userHobby not found.' })
+  }
+
+})
+
+app.patch('/userHobbys/:id', async (req, res) => {
+
+  const idParam = req.params.id;
+  const { userId, hobbyId } = req.body
+
+  const userHobbyData = {
+    userId: userId,
+    hobbyId: hobbyId
+  }
+
+  try {
+
+    const userHobby = await prisma.userHobby.update({
+      where: {
+        id: Number(idParam),
+      },
+      data: userHobbyData
+    })
+
+    res.send(userHobby)
+
+  } catch(error) {
+    res.status(404).send({message: error})
   }
 
 })
@@ -166,7 +251,7 @@ app.post('/hobbys', async (req, res) => {
 
 })
 
-app.delete('hobbys/:id', async (req, res) => {
+app.delete('/hobbys/:id', async (req, res) => {
 
   const idParam = req.params.id
   
@@ -182,10 +267,12 @@ app.delete('hobbys/:id', async (req, res) => {
       where: { id: Number(idParam) }
     })
 
+    res.send({ message: 'hobby deleted.' })
+
   }
 
   else {
-    res.send({"error": "undefined"})
+    res.status(404).send({ error: 'hobby not found.' })
   }
 
 })
@@ -195,13 +282,7 @@ app.patch('/hobbys/:id', async (req, res) => {
   const idParam = req.params.id;
   const { name, description, active, image, userId } = req.body
   
-  const hobby = await prisma.hobby.findFirst({
-    where: {
-      id: Number(idParam)
-    }
-  })
-
-  const updatedHobby = {
+  const hobbyData = {
     name: name,
     description: description,
     active: active,
@@ -209,19 +290,19 @@ app.patch('/hobbys/:id', async (req, res) => {
     userId: userId
   }
 
-  if (hobby) {
+  try {
 
-    await prisma.hobby.update({
+    const hobby = await prisma.hobby.update({
       where: {
         id: Number(idParam),
       },
-      data: updatedHobby
+      data: hobbyData
     })
 
-  }
+    res.send(hobby)
 
-  else {
-    res.send({"error": "undefined"})
+  } catch(error) {
+    res.status(404).send({message: error})
   }
 
 })
