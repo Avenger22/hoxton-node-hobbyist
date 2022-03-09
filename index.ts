@@ -17,11 +17,20 @@ app.use(express.json())
 // #region 'Users endpoints'
 app.get('/users', async (req, res) => {
 
-  const users = await prisma.user.findMany({
-    include: { hobbys: { include : { hobby: true } } }
-  })
+  try {
 
-  res.send(users)
+    const users = await prisma.user.findMany({
+      include: { hobbys: { include : { hobby: true } } }
+    })
+
+    res.send(users)
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<pre>${error.message}</pre>`)
+  }
 
 })
 
@@ -29,17 +38,26 @@ app.get('/users/:id', async (req, res) => {
 
   const idParam = Number(req.params.id)
 
-  const user = await prisma.user.findFirst({
-    where: { id: idParam },
-    include: { hobbys: { include : { hobby: true } } }
-  })
+  try {
 
-  if (user) {
-    res.send(user)
-  } 
-  
-  else {
-    res.status(404).send({ error: 'User not found.' })
+    const user = await prisma.user.findFirst({
+      where: { id: idParam },
+      include: { hobbys: { include : { hobby: true } } }
+    })
+
+    if (user) {
+      res.send(user)
+    } 
+    
+    else {
+      res.status(404).send({ error: 'User not found.' })
+    }
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -54,7 +72,25 @@ app.post('/users', async (req, res) => {
     photo: photo
   }
 
-  await prisma.user.create({data: newUser})
+  try {
+
+    const userCheck = await prisma.user.findFirst({ where: { email: newUser.email } })
+    
+    if (userCheck) {
+      res.status(404).send({ error: 'User has an already registered email try different email.' })
+    }
+
+    else {
+      const createdUser = await prisma.user.create({data: newUser})
+      res.send(createdUser)
+    }
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
+  }
 
 })
 
@@ -62,24 +98,33 @@ app.delete('/users/:id', async (req, res) => {
 
   const idParam = req.params.id
 
-  const user = await prisma.user.findFirst({
-    where: {
-      id: Number(idParam)
-    }
-  })
+  try {
 
-  if (user) {
-
-    await prisma.user.delete({ 
-      where: { id: Number(idParam) }
+    const user = await prisma.user.findFirst({
+      where: {
+        id: Number(idParam)
+      }
     })
 
-    res.send({ message: 'user deleted.' })
+    if (user) {
+
+      await prisma.user.delete({ 
+        where: { id: Number(idParam) }
+      })
+
+      res.send({ message: 'user deleted.' })
+
+    }
+
+    else {
+      res.status(404).send({ error: 'user not found.' })
+    }
 
   }
 
-  else {
-    res.status(404).send({ error: 'user not found.' })
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -106,7 +151,9 @@ app.patch('/users/:id', async (req, res) => {
 
     res.send(user)
 
-  } catch(error) {
+  } 
+  
+  catch(error) {
     res.status(404).send({message: error})
   }
 
@@ -116,8 +163,15 @@ app.patch('/users/:id', async (req, res) => {
 // #region 'userHobbys endpoints'
 app.get('/userHobbys', async (req, res) => {
 
-  const userHobbys = await prisma.userHobby.findMany()
-  res.send(userHobbys)
+  try {
+    const userHobbys = await prisma.userHobby.findMany()
+    res.send(userHobbys)
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
+  }
 
 })
 
@@ -125,16 +179,25 @@ app.get('/userHobbys/:id', async (req, res) => {
 
   const idParam = Number(req.params.id)
 
-  const userHobby = await prisma.userHobby.findFirst({
-    where: { id: idParam }
-  })
+  try {
 
-  if (userHobby) {
-    res.send(userHobby)
-  } 
-  
-  else {
-    res.status(404).send({ error: 'userHobby not found.' })
+    const userHobby = await prisma.userHobby.findFirst({
+      where: { id: idParam }
+    })
+
+    if (userHobby) {
+      res.send(userHobby)
+    } 
+    
+    else {
+      res.status(404).send({ error: 'userHobby not found.' })
+    }
+
+  }
+
+  catch(error){
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -148,7 +211,25 @@ app.post('/userHobbys', async (req, res) => {
     hobbyId: hobbyId
   }
 
-  await prisma.userHobby.create({data: newUserHobby})
+  try {
+
+    const userHobbyCheck = await prisma.userHobby.findFirst({ where: { userId: newUserHobby.userId, hobbyId: newUserHobby.hobbyId } })
+    
+    if (userHobbyCheck) {
+      res.status(404).send({ error: 'UserHobby has an already registered id combination try different combination.' })
+    }
+
+    else {
+      const createdUserHobby = await prisma.userHobby.create({data: newUserHobby})
+      res.send(createdUserHobby)
+    }
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
+  }
 
 })
 
@@ -156,24 +237,33 @@ app.delete('/userHobbys/:id', async (req, res) => {
 
   const idParam = req.params.id
 
-  const userHobby = await prisma.userHobby.findFirst({
-    where: {
-      id: Number(idParam)
-    }
-  })
+  try {
 
-  if (userHobby) {
-
-    await prisma.userHobby.delete({ 
-      where: { id: Number(idParam) }
+    const userHobby = await prisma.userHobby.findFirst({
+      where: {
+        id: Number(idParam)
+      }
     })
 
-    res.send({ message: 'userHobby deleted.' })
+    if (userHobby) {
+
+      await prisma.userHobby.delete({ 
+        where: { id: Number(idParam) }
+      })
+
+      res.send({ message: 'userHobby deleted.' })
+
+    }
+
+    else {
+      res.status(404).send({ error: 'userHobby not found.' })
+    }
 
   }
 
-  else {
-    res.status(404).send({ error: 'userHobby not found.' })
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -199,7 +289,9 @@ app.patch('/userHobbys/:id', async (req, res) => {
 
     res.send(userHobby)
 
-  } catch(error) {
+  } 
+  
+  catch(error) {
     res.status(404).send({message: error})
   }
 
@@ -209,11 +301,20 @@ app.patch('/userHobbys/:id', async (req, res) => {
 // #region "Hobbys endpoints"
 app.get('/hobbys', async (req, res) => {
 
-  const hobbys = await prisma.hobby.findMany({
-    include: { users: { include : { user: true } } }
-  })
+  try {
 
-  res.send(hobbys)
+    const hobbys = await prisma.hobby.findMany({
+      include: { users: { include : { user: true } } }
+    })
+
+    res.send(hobbys)
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
+  }
 
 })
 
@@ -221,17 +322,26 @@ app.get('/hobbys/:id', async (req, res) => {
 
   const idParam = Number(req.params.id)
 
-  const hobby = await prisma.hobby.findFirst({
-    where: { id: idParam },
-    include: { users: { include : { user: true } } }
-  })
+  try {
 
-  if (hobby) {
-    res.send(hobby)
-  } 
-  
-  else {
-    res.status(404).send({ error: 'Hobby not found.' })
+    const hobby = await prisma.hobby.findFirst({
+      where: { id: idParam },
+      include: { users: { include : { user: true } } }
+    })
+
+    if (hobby) {
+      res.send(hobby)
+    } 
+    
+    else {
+      res.status(404).send({ error: 'Hobby not found.' })
+    }
+
+  }
+
+  catch(error){
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -247,7 +357,25 @@ app.post('/hobbys', async (req, res) => {
     image: image, userId: userId
   }
 
-  await prisma.hobby.create({data: newHobby})
+  try {
+
+    const hobyCheck = await prisma.hobby.findFirst({ where: { name: newHobby.name } })
+    
+    if (hobyCheck) {
+      res.status(404).send({ error: 'Hobby has an already registered name try different name.' })
+    }
+
+    else {
+      const createdHobby = await prisma.hobby.create({data: newHobby})
+      res.send(createdHobby)
+    }
+
+  }
+
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
+  }
 
 })
 
@@ -255,24 +383,33 @@ app.delete('/hobbys/:id', async (req, res) => {
 
   const idParam = req.params.id
   
-  const hobby = await prisma.hobby.findFirst({
-    where: {
-      id: Number(idParam)
-    }
-  })
+  try {
 
-  if (hobby) {
-
-    await prisma.hobby.delete({ 
-      where: { id: Number(idParam) }
+    const hobby = await prisma.hobby.findFirst({
+      where: {
+        id: Number(idParam)
+      }
     })
 
-    res.send({ message: 'hobby deleted.' })
+    if (hobby) {
+
+      await prisma.hobby.delete({ 
+        where: { id: Number(idParam) }
+      })
+
+      res.send({ message: 'hobby deleted.' })
+
+    }
+
+    else {
+      res.status(404).send({ error: 'hobby not found.' })
+    }
 
   }
 
-  else {
-    res.status(404).send({ error: 'hobby not found.' })
+  catch(error) {
+    //@ts-ignore
+    res.status(400).send(`<prev>${error.message}</prev>`)
   }
 
 })
@@ -301,7 +438,9 @@ app.patch('/hobbys/:id', async (req, res) => {
 
     res.send(hobby)
 
-  } catch(error) {
+  } 
+  
+  catch(error) {
     res.status(404).send({message: error})
   }
 

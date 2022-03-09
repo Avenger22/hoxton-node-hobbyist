@@ -24,26 +24,32 @@ const users = [
 
 const userHobbys = [
   {
+    id: 1,
     userId: 1,
     hobbyId: 2
   },
   {
+    id: 2,
     userId: 1,
     hobbyId: 3
   },
   {
+    id: 3,
     userId: 3,
     hobbyId: 1
   },
   {
+    id: 4,
     userId: 3,
     hobbyId: 2
   },
   {
+    id: 5,
     userId: 2,
     hobbyId: 2
   },
   {
+    id: 6,
     userId: 2,
     hobbyId: 3
   }

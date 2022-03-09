@@ -28,7 +28,7 @@ model UserHobby {
 
 model Hobby {
   id          Int           @id @default(autoincrement())
-  name        String
+  name        String        @unique
   description String
   active      Boolean
   image       String
